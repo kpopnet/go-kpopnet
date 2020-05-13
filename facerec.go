@@ -1,5 +1,3 @@
-// +build !nodlib
-
 package kpopnet
 
 import (
