@@ -16,8 +16,8 @@ gofmt:
 testdata:
 	git clone https://github.com/Kagami/go-face-testdata testdata
 
-test: kpopnetd testdata
+test: testdata
 	go test -v ./facerec
 
-docker:
+docker: kpopnetd testdata
 	docker build -t kpopnet .
