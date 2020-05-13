@@ -28,7 +28,6 @@ Options:
   -p <port>     Port to listen on [default: 8002].
   -c <conn>     PostgreSQL connection string
                 [default: user=meguca password=meguca dbname=meguca sslmode=disable].
-  -s <sitedir>  Site directory location [default: ./dist].
   -d <datadir>  Data directory location [default: ./testdata].
 `
 
@@ -36,7 +35,6 @@ type config struct {
 	Host    string `docopt:"-H"`
 	Port    int    `docopt:"-p"`
 	Conn    string `docopt:"-c"`
-	SiteDir string `docopt:"-s"`
 	DataDir string `docopt:"-d"`
 }
 
@@ -49,7 +47,6 @@ func serve(conf config) {
 	}
 	opts := kpopnet.ServerOptions{
 		Address: fmt.Sprintf("%v:%v", conf.Host, conf.Port),
-		WebRoot: conf.SiteDir,
 	}
 	log.Printf("Listening on %v", opts.Address)
 	log.Fatal(kpopnet.StartServer(opts))

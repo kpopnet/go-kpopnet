@@ -67,7 +67,7 @@ func handle500(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 // ServeProfiles returns a JSON object with information about all profiles.
-func ServeProfiles(w http.ResponseWriter, r *http.Request) {
+func ServeProfiles(w http.ResponseWriter, r *http.Request, _ map[string]string) {
 	// TODO(Kagami): For some reason cached request is not fast enough.
 	// TODO(Kagami): Use some trigger to invalidate cache.
 	v, err := cached(profileCacheKey, func() (v interface{}, err error) {
@@ -86,7 +86,7 @@ func ServeProfiles(w http.ResponseWriter, r *http.Request) {
 }
 
 // ServeRecognize recognizes image uploaded via HTTP.
-func ServeRecognize(w http.ResponseWriter, r *http.Request) {
+func ServeRecognize(w http.ResponseWriter, r *http.Request, _ map[string]string) {
 	r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
 	if err := r.ParseMultipartForm(0); err != nil {
 		serveError(w, r, errParseForm, 400)
@@ -123,9 +123,8 @@ func ServeRecognize(w http.ResponseWriter, r *http.Request) {
 }
 
 // ServeImageInfo returns information about already recognized image, if any.
-func ServeImageInfo(w http.ResponseWriter, r *http.Request) {
-	imageID := getParam(r, "id")
-	info, err := getImageInfo(imageID)
+func ServeImageInfo(w http.ResponseWriter, r *http.Request, p map[string]string) {
+	info, err := getImageInfo(p["id"])
 	switch err {
 	case errNoIdol:
 		serveError(w, r, err, 404)

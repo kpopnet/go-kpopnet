@@ -6,8 +6,6 @@ import (
 	"log"
 	"net/http"
 	"runtime/debug"
-
-	"github.com/dimfeld/httptreemux"
 )
 
 func logError(err error) {
@@ -25,8 +23,4 @@ func checkEtag(w http.ResponseWriter, r *http.Request, etag string) bool {
 		return true
 	}
 	return false
-}
-
-func getParam(r *http.Request, id string) string {
-	return httptreemux.ContextParams(r.Context())[id]
 }

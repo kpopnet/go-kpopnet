@@ -13,5 +13,5 @@ gofmt:
 testdata:
 	git clone https://github.com/Kagami/go-face-testdata testdata
 
-test: testdata
+test: kpopnetd testdata
 	go test -v
