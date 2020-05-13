@@ -40,13 +40,14 @@ func prepare() (err error) {
 	return
 }
 
-func StartDB(openedDb *sql.DB, connStr string) (err error) {
-	if openedDb == nil {
+// StartDB initializes DB, using already opened connection or making a new one.
+func StartDB(openedDB *sql.DB, connStr string) (err error) {
+	if openedDB == nil {
 		if db, err = sql.Open("postgres", connStr); err != nil {
 			return
 		}
 	} else {
-		db = openedDb
+		db = openedDB
 	}
 
 	if err = execQ("init_db"); err != nil {

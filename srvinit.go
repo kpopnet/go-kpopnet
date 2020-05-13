@@ -7,11 +7,13 @@ import (
 	"github.com/dimfeld/httptreemux"
 )
 
+// ServerOptions is server's config.
 type ServerOptions struct {
 	Address string
 	WebRoot string
 }
 
+// StartServer starts HTTP server with specified config.
 func StartServer(o ServerOptions) (err error) {
 	router, err := createRouter(o)
 	if err != nil {

@@ -88,7 +88,7 @@ func getIdolPreviews(tx *sql.Tx, idolByID map[string]Idol) (err error) {
 	return
 }
 
-// Get all profiles.
+// GetProfiles queries all profiles.
 func GetProfiles() (ps *Profiles, err error) {
 	tx, err := beginTx()
 	if err != nil {
@@ -140,7 +140,7 @@ func getIdolData(idol Idol) (data []byte, err error) {
 	return
 }
 
-// Insert/update database profiles.
+// UpdateProfiles inserts or updates database profiles.
 func UpdateProfiles(ps *Profiles) (err error) {
 	tx, err := beginTx()
 	if err != nil {

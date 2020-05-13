@@ -42,6 +42,7 @@ type trainData struct {
 	labels  map[int]string
 }
 
+// StartFaceRec initializes facerec module.
 func StartFaceRec(dataDir string) error {
 	return startFaceRec(getModelsDir(dataDir))
 }
@@ -67,9 +68,7 @@ func recWorker() {
 	}
 }
 
-// Recognize user-provided image with the specific concurrency level.
-// Note that we don't read file beforehand to minimize memory
-// consumption.
+// RequestRecognizeMultipart recognizes provided image.
 func RequestRecognizeMultipart(fh *multipart.FileHeader) (idolID *string, err error) {
 	ch := make(chan recResult)
 	go func() {

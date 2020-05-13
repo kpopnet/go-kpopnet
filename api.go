@@ -66,6 +66,7 @@ func handle500(w http.ResponseWriter, r *http.Request, err error) {
 	serveError(w, r, errInternal, 500)
 }
 
+// ServeProfiles returns a JSON object with information about all profiles.
 func ServeProfiles(w http.ResponseWriter, r *http.Request) {
 	// TODO(Kagami): For some reason cached request is not fast enough.
 	// TODO(Kagami): Use some trigger to invalidate cache.
@@ -84,6 +85,7 @@ func ServeProfiles(w http.ResponseWriter, r *http.Request) {
 	serveData(w, r, v.([]byte))
 }
 
+// ServeRecognize recognizes image uploaded via HTTP.
 func ServeRecognize(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
 	if err := r.ParseMultipartForm(0); err != nil {
@@ -120,6 +122,7 @@ func ServeRecognize(w http.ResponseWriter, r *http.Request) {
 	serveJSON(w, r, result)
 }
 
+// ServeImageInfo returns information about already recognized image, if any.
 func ServeImageInfo(w http.ResponseWriter, r *http.Request) {
 	imageID := getParam(r, "id")
 	info, err := getImageInfo(imageID)

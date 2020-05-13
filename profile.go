@@ -19,19 +19,21 @@ type Band map[string]interface{}
 // Idol info.
 type Idol map[string]interface{}
 
-// All bands and idols.
+// Profiles contains information about known bands and idols.
 type Profiles struct {
 	Bands []Band `json:"bands"`
 	Idols []Idol `json:"idols"`
 }
 
-// TODO(Kagami): Add close matches field to simplify confirmation.
+// ImageInfo contains information about recognized image.
 type ImageInfo struct {
 	Rectangle image.Rectangle
+	// TODO(Kagami): Add few most probable matches to simplify confirmation.
 	IdolID    string
 	Confirmed bool
 }
 
+// MarshalJSON returns JSON representation of ImageInfo.
 func (i ImageInfo) MarshalJSON() ([]byte, error) {
 	r := i.Rectangle
 	s := fmt.Sprintf(
@@ -88,7 +90,8 @@ func readBandIdols(d string, bname string) (idols []Idol, err error) {
 	return
 }
 
-// Read all profiles from JSON-encoded files in provided directory.
+// ReadProfiles reads all profiles from JSON-encoded files in provided
+// directory.
 func ReadProfiles(d string) (ps *Profiles, err error) {
 	var bands []Band
 	var idols []Idol
@@ -128,7 +131,7 @@ func ReadProfiles(d string) (ps *Profiles, err error) {
 	return
 }
 
-// Read and update profiles in database.
+// ImportProfiles reads and updates profiles in database.
 func ImportProfiles(connStr string, dataDir string) (err error) {
 	if err = StartDB(nil, connStr); err != nil {
 		return

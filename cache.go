@@ -4,19 +4,19 @@ import (
 	"sync"
 )
 
-type Key int
+type cacheKey int
 
 const (
-	profileCacheKey Key = iota
+	profileCacheKey cacheKey = iota
 	trainDataCacheKey
 )
 
 var (
 	mu    sync.Mutex
-	cache = make(map[Key]interface{}, 2)
+	cache = make(map[cacheKey]interface{}, 2)
 )
 
-func cached(key Key, makev func() (interface{}, error)) (v interface{}, err error) {
+func cached(key cacheKey, makev func() (interface{}, error)) (v interface{}, err error) {
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -32,6 +32,8 @@ func cached(key Key, makev func() (interface{}, error)) (v interface{}, err erro
 	return
 }
 
+// ClearProfilesCache wipes cached profiles info.
+// Should be called on DB update.
 func ClearProfilesCache() {
 	mu.Lock()
 	defer mu.Unlock()

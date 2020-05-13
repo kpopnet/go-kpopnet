@@ -173,7 +173,7 @@ func importBandImages(bdir, bname string, idolByNames idolNamesMap) (err error) 
 	return
 }
 
-// Read and update idol faces in database.
+// ImportImages reads and updates idol faces in DB.
 func ImportImages(connStr string, dataDir string, onlyBands []string) (err error) {
 	if err = StartDB(nil, connStr); err != nil {
 		return
