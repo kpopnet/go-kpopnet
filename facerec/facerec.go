@@ -39,8 +39,8 @@ type recResult struct {
 	err    error
 }
 
-// StartFaceRec initializes face recognition.
-func StartFaceRec(modelDir string) (err error) {
+// Start initializes face recognition.
+func Start(modelDir string) (err error) {
 	faceRec, err = face.NewRecognizer(modelDir)
 	if err != nil {
 		return fmt.Errorf("error initializing face recognizer: %v", err)

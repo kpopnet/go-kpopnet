@@ -71,10 +71,10 @@ func recognizeFile(fpath string) (idolID *string, err error) {
 }
 
 func TestIdols(t *testing.T) {
-	if err := db.StartDB(nil, testConn); err != nil {
+	if err := db.Start(nil, testConn); err != nil {
 		t.Fatal(err)
 	}
-	if err := StartFaceRec(testDir); err != nil {
+	if err := Start(testDir); err != nil {
 		t.Fatal(err)
 	}
 	idolByID, bandByID, err := db.GetMaps()

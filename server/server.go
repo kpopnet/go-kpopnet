@@ -6,15 +6,10 @@ import (
 	"github.com/dimfeld/httptreemux/v5"
 )
 
-// ServerOptions is server's config.
-type ServerOptions struct {
-	Address string
-}
-
-// StartServer starts HTTP server with specified config.
-func StartServer(o ServerOptions) (err error) {
+// StartServer starts HTTP server on specified address.
+func Start(address string) (err error) {
 	router := createRouter()
-	return http.ListenAndServe(o.Address, router)
+	return http.ListenAndServe(address, router)
 }
 
 func createRouter() http.Handler {

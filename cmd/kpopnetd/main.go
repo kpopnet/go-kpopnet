@@ -41,17 +41,15 @@ type config struct {
 }
 
 func serve(conf config) {
-	if err := db.StartDB(nil, conf.Conn); err != nil {
+	if err := db.Start(nil, conf.Conn); err != nil {
 		log.Fatal(err)
 	}
-	if err := facerec.StartFaceRec(conf.DataDir); err != nil {
+	if err := facerec.Start(conf.DataDir); err != nil {
 		log.Fatal(err)
 	}
-	opts := server.ServerOptions{
-		Address: fmt.Sprintf("%v:%v", conf.Host, conf.Port),
-	}
-	log.Printf("Listening on %v", opts.Address)
-	log.Fatal(server.StartServer(opts))
+	address := fmt.Sprintf("%v:%v", conf.Host, conf.Port)
+	log.Printf("Listening on %v", address)
+	log.Fatal(server.Start(address))
 }
 
 func main() {
