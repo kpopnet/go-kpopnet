@@ -5,8 +5,6 @@
 // sql/get_idols.sql (36B)
 // sql/get_train_data.sql (83B)
 // sql/init_db.sql (1.116kB)
-// sql/upsert_band.sql (88B)
-// sql/upsert_idol.sql (115B)
 
 package db
 
@@ -175,46 +173,6 @@ func init_dbSql() (*asset, error) {
 	return a, nil
 }
 
-var _upsert_bandSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\xf2\xf4\x0b\x76\x0d\x0a\x51\xf0\xf4\x0b\xf1\x57\x48\x4a\xcc\x4b\x29\x56\xd0\xc8\x4c\xd1\x51\x48\x49\x2c\x49\xd4\x54\x08\x73\xf4\x09\x75\x0d\x56\xd0\x50\x31\xd4\x51\x50\x31\xd2\xe4\xf2\xf7\x53\x70\xf6\xf7\x73\xf3\xf1\x74\x0e\x01\x29\xd3\x54\x70\xf1\xe7\x52\x50\x08\x0d\x70\x71\x0c\x71\x55\x08\x76\x0d\x01\x6b\x53\xb0\x55\x50\x31\xe2\x02\x04\x00\x00\xff\xff\x7c\xf2\x04\xd0\x58\x00\x00\x00")
-
-func upsert_bandSqlBytes() ([]byte, error) {
-	return bindataRead(
-		_upsert_bandSql,
-		"upsert_band.sql",
-	)
-}
-
-func upsert_bandSql() (*asset, error) {
-	bytes, err := upsert_bandSqlBytes()
-	if err != nil {
-		return nil, err
-	}
-
-	info := bindataFileInfo{name: "upsert_band.sql", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
-	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0x73, 0x18, 0x63, 0xe3, 0x95, 0x2, 0x52, 0x53, 0xb4, 0xa9, 0x8, 0xf5, 0x13, 0xc7, 0xfc, 0x9, 0xb0, 0xe0, 0x12, 0xb1, 0x99, 0x46, 0x3f, 0x8d, 0xcd, 0xfa, 0x19, 0x80, 0xc2, 0xd4, 0x0, 0xe}}
-	return a, nil
-}
-
-var _upsert_idolSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\xf2\xf4\x0b\x76\x0d\x0a\x51\xf0\xf4\x0b\xf1\x57\xc8\x4c\xc9\xcf\x29\x56\xd0\xc8\x4c\xd1\x51\x48\x4a\xcc\x4b\x89\x07\x31\x52\x12\x4b\x12\x35\x15\xc2\x1c\x7d\x42\x5d\x83\x15\x34\x54\x0c\x75\x14\x54\x8c\x74\x14\x54\x8c\x35\xb9\xfc\xfd\x14\x9c\xfd\xfd\xdc\x7c\x3c\x9d\x43\x40\x7a\x34\x15\x5c\xfc\xb9\x14\x14\x42\x03\x5c\x1c\x43\x5c\x15\x82\x5d\x43\x60\x66\x28\xd8\x82\xb5\x80\x0c\x02\x31\x8d\xb9\x00\x01\x00\x00\xff\xff\xf9\xf9\xc7\x4a\x73\x00\x00\x00")
-
-func upsert_idolSqlBytes() ([]byte, error) {
-	return bindataRead(
-		_upsert_idolSql,
-		"upsert_idol.sql",
-	)
-}
-
-func upsert_idolSql() (*asset, error) {
-	bytes, err := upsert_idolSqlBytes()
-	if err != nil {
-		return nil, err
-	}
-
-	info := bindataFileInfo{name: "upsert_idol.sql", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
-	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0xf2, 0xcf, 0x2a, 0xde, 0x16, 0xb6, 0x2b, 0x87, 0xe2, 0x4b, 0x8, 0x74, 0xc3, 0x66, 0xa9, 0x82, 0x72, 0x3b, 0xdb, 0xf5, 0x96, 0x6c, 0xab, 0x8e, 0x53, 0x72, 0xe4, 0xc3, 0x73, 0xa4, 0xa, 0xb}}
-	return a, nil
-}
-
 // Asset loads and returns the asset for the given name.
 // It returns an error if the asset could not be found or
 // could not be loaded.
@@ -311,8 +269,6 @@ var _bindata = map[string]func() (*asset, error){
 	"get_idols.sql":         get_idolsSql,
 	"get_train_data.sql":    get_train_dataSql,
 	"init_db.sql":           init_dbSql,
-	"upsert_band.sql":       upsert_bandSql,
-	"upsert_idol.sql":       upsert_idolSql,
 }
 
 // AssetDir returns the file names below a certain
@@ -361,8 +317,6 @@ var _bintree = &bintree{nil, map[string]*bintree{
 	"get_idols.sql":         &bintree{get_idolsSql, map[string]*bintree{}},
 	"get_train_data.sql":    &bintree{get_train_dataSql, map[string]*bintree{}},
 	"init_db.sql":           &bintree{init_dbSql, map[string]*bintree{}},
-	"upsert_band.sql":       &bintree{upsert_bandSql, map[string]*bintree{}},
-	"upsert_idol.sql":       &bintree{upsert_idolSql, map[string]*bintree{}},
 }}
 
 // RestoreAsset restores an asset under the given directory.

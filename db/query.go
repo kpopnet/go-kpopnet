@@ -134,62 +134,6 @@ func GetMaps() (idolByID map[string]k.Idol, bandByID map[string]k.Band, err erro
 	return
 }
 
-// Prepare band structure to be stored in DB.
-// ID fields are removed to avoid duplication.
-func getBandData(band k.Band) (data []byte, err error) {
-	delete(band, "id")
-	delete(band, "urls") // Don't need this
-	data, err = json.Marshal(band)
-	return
-}
-
-// Prepare idol structure to be stored in DB.
-// ID fields are removed to avoid duplication.
-func getIdolData(idol k.Idol) (data []byte, err error) {
-	delete(idol, "id")
-	delete(idol, "band_id")
-	data, err = json.Marshal(idol)
-	return
-}
-
-// UpdateProfiles inserts or updates database profiles.
-func UpdateProfiles(ps *k.Profiles) (err error) {
-	tx, err := beginTx()
-	if err != nil {
-		return
-	}
-	defer endTx(tx, &err)
-
-	st := tx.Stmt(prepared["upsert_band"])
-	for _, band := range ps.Bands {
-		id := band["id"]
-		var data []byte
-		data, err = getBandData(band)
-		if err != nil {
-			return
-		}
-		if _, err = st.Exec(id, data); err != nil {
-			return
-		}
-	}
-
-	st = tx.Stmt(prepared["upsert_idol"])
-	for _, idol := range ps.Idols {
-		id := idol["id"]
-		bandID := idol["band_id"]
-		var data []byte
-		data, err = getIdolData(idol)
-		if err != nil {
-			return
-		}
-		if _, err = st.Exec(id, bandID, data); err != nil {
-			return
-		}
-	}
-
-	return
-}
-
 // GetTrainData returns confirmed face descriptors.
 func GetTrainData() (data *k.TrainData, err error) {
 	var samples []face.Descriptor
