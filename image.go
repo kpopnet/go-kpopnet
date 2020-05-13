@@ -20,10 +20,6 @@ func getImagesDir(d string) string {
 	return filepath.Join(d, "images")
 }
 
-func getModelsDir(d string) string {
-	return filepath.Join(d, "models")
-}
-
 func getSha1(data []byte) string {
 	hash := sha1.Sum(data)
 	return hex.EncodeToString(hash[:])
@@ -173,13 +169,13 @@ func importBandImages(bdir, bname string, idolByNames idolNamesMap) (err error) 
 	return
 }
 
-// ImportImages reads and updates idol faces in DB.
-func ImportImages(connStr string, dataDir string, onlyBands []string) (err error) {
+// ImportImages reads and updates idols recognition info in DB.
+func ImportImages(connStr string, modelDir string, imageDir string, onlyBands []string) (err error) {
 	if err = StartDB(nil, connStr); err != nil {
 		return
 	}
 
-	if err = StartFaceRec(dataDir); err != nil {
+	if err = StartFaceRec(modelDir); err != nil {
 		return
 	}
 
@@ -189,7 +185,7 @@ func ImportImages(connStr string, dataDir string, onlyBands []string) (err error
 		return
 	}
 
-	bandDirs, err := ioutil.ReadDir(getImagesDir(dataDir))
+	bandDirs, err := ioutil.ReadDir(imageDir)
 	if err != nil {
 		err = fmt.Errorf("error reading bands: %v", err)
 		return
@@ -205,7 +201,7 @@ func ImportImages(connStr string, dataDir string, onlyBands []string) (err error
 		if len(bandFilter) > 0 && !bandFilter[bname] {
 			continue
 		}
-		bdir := filepath.Join(getImagesDir(dataDir), bname)
+		bdir := filepath.Join(imageDir, bname)
 		if err = importBandImages(bdir, bname, idolByNames); err != nil {
 			err = fmt.Errorf("error importing %s images: %v", bname, err)
 			return

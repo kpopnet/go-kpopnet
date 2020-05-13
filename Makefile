@@ -2,10 +2,10 @@ all: kpopnetd
 
 .PHONY: kpopnetd
 kpopnetd:
-	go build -o . ./...
+	go build ./cmd/kpopnetd
 
-serve: kpopnetd
-	./kpopnetd serve
+serve: kpopnetd testdata
+	./kpopnetd
 
 gofmt:
 	go fmt ./...

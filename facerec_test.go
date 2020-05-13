@@ -86,7 +86,7 @@ func TestIdols(t *testing.T) {
 	if err := StartDB(nil, testConn); err != nil {
 		t.Fatal(err)
 	}
-	if err := startFaceRec("testdata"); err != nil {
+	if err := StartFaceRec("testdata"); err != nil {
 		t.Fatal(err)
 	}
 	idolByID, bandByID, err := getMaps()

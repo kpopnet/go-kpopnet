@@ -42,14 +42,9 @@ type trainData struct {
 	labels  map[int]string
 }
 
-// StartFaceRec initializes facerec module.
-func StartFaceRec(dataDir string) error {
-	return startFaceRec(getModelsDir(dataDir))
-}
-
-// Useful for tests.
-func startFaceRec(modelsDir string) (err error) {
-	faceRec, err = face.NewRecognizer(modelsDir)
+// StartFaceRec initializes face recognition.
+func StartFaceRec(modelDir string) (err error) {
+	faceRec, err = face.NewRecognizer(modelDir)
 	if err != nil {
 		return fmt.Errorf("error initializing face recognizer: %v", err)
 	}
