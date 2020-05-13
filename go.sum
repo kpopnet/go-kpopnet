@@ -4,5 +4,7 @@ github.com/dimfeld/httptreemux/v5 v5.2.2 h1:8JAUcuNrLbL5uwmvQ4lZVCjuQ/Ioojc+7VGt
 github.com/dimfeld/httptreemux/v5 v5.2.2/go.mod h1:QeEylH57C0v3VO0tkKraVz9oD3Uu93CKPnTLbsidvSw=
 github.com/docopt/docopt-go v0.0.0-20180111231733-ee0de3bc6815 h1:bWDMxwH3px2JBh6AyO7hdCn/PkvCZXii8TGj7sbtEbQ=
 github.com/docopt/docopt-go v0.0.0-20180111231733-ee0de3bc6815/go.mod h1:WwZ+bS3ebgob9U8Nd0kOddGdZWjyMGR8Wziv+TBNwSE=
+github.com/kevinburke/go-bindata v3.19.0+incompatible h1:iB9FY0D/WyDVmzrfVbDKQJqtt653re1Ek0W+XobkhUU=
+github.com/kevinburke/go-bindata v3.19.0+incompatible/go.mod h1:/pEEZ72flUW2p0yi30bslSp9YqD9pysLxunQDdb2CPM=
 github.com/lib/pq v1.5.2 h1:yTSXVswvWUOQ3k1sd7vJfDrbSl8lKuscqFJRqjC0ifw=
 github.com/lib/pq v1.5.2/go.mod h1:5WUZQaWbwv1U+lTReE5YruASi9Al49XbQIvNi/34Woo=

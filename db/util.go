@@ -1,12 +1,21 @@
-package kpopnet
+package db
 
 import (
 	"database/sql"
 	"fmt"
 	"image"
+	"log"
 	"regexp"
+	"runtime/debug"
 	"strconv"
+	"unsafe"
+
+	"github.com/Kagami/go-face"
 )
+
+func logError(err error) {
+	log.Printf("kpopnet: %s\n%s\n", err, debug.Stack())
+}
 
 func execQ(queryID string) (err error) {
 	_, err = db.Exec(getQuery(queryID))
@@ -26,16 +35,6 @@ func endTx(tx *sql.Tx, err *error) {
 		return
 	}
 	*err = tx.Commit()
-}
-
-func setReadOnly(tx *sql.Tx) (err error) {
-	_, err = tx.Exec("SET TRANSACTION READ ONLY")
-	return
-}
-
-func setRepeatableRead(tx *sql.Tx) (err error) {
-	_, err = tx.Exec("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ")
-	return
 }
 
 // PostgreSQL to Go type mappers.
@@ -62,4 +61,15 @@ func str2rect(rectStr string) (rect image.Rectangle) {
 	x1, _ := strconv.Atoi(coords[3])
 	y1, _ := strconv.Atoi(coords[4])
 	return image.Rect(x0, y0, x1, y1)
+}
+
+// Zero-copy conversions.
+
+func descr2bytes(d face.Descriptor) []byte {
+	size := unsafe.Sizeof(d)
+	return (*[1 << 30]byte)(unsafe.Pointer(&d))[:size:size]
+}
+
+func bytes2descr(b []byte) face.Descriptor {
+	return *(*face.Descriptor)(unsafe.Pointer(&b[0]))
 }

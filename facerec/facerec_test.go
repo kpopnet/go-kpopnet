@@ -1,4 +1,4 @@
-package kpopnet
+package facerec
 
 import (
 	"fmt"
@@ -7,9 +7,12 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/kpopnet/go-kpopnet/db"
 )
 
 const (
+	testDir  = "../testdata"
 	testConn = "user=meguca password=meguca dbname=meguca sslmode=disable"
 )
 
@@ -51,23 +54,8 @@ var (
 	}
 )
 
-func getMaps() (idolByID map[string]Idol, bandByID map[string]Band, err error) {
-	tx, err := beginTx()
-	if err != nil {
-		return
-	}
-	defer endTx(tx, &err)
-	if _, idolByID, err = getIdols(tx); err != nil {
-		return
-	}
-	if _, bandByID, err = getBands(tx); err != nil {
-		return
-	}
-	return
-}
-
 func getTestFilePath(fname string) string {
-	return filepath.Join("testdata", fname)
+	return filepath.Join(testDir, fname)
 }
 
 func recognizeFile(fpath string) (idolID *string, err error) {
@@ -83,13 +71,13 @@ func recognizeFile(fpath string) (idolID *string, err error) {
 }
 
 func TestIdols(t *testing.T) {
-	if err := StartDB(nil, testConn); err != nil {
+	if err := db.StartDB(nil, testConn); err != nil {
 		t.Fatal(err)
 	}
-	if err := StartFaceRec("testdata"); err != nil {
+	if err := StartFaceRec(testDir); err != nil {
 		t.Fatal(err)
 	}
-	idolByID, bandByID, err := getMaps()
+	idolByID, bandByID, err := db.GetMaps()
 	if err != nil {
 		t.Fatal(err)
 	}

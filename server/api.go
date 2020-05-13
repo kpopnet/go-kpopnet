@@ -1,25 +1,21 @@
-package kpopnet
+package server
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/kpopnet/go-kpopnet"
+	"github.com/kpopnet/go-kpopnet/cache"
+	"github.com/kpopnet/go-kpopnet/db"
+	"github.com/kpopnet/go-kpopnet/facerec"
 )
 
 var (
 	maxOverheadSize = int64(10 * 1024)
 	maxFileSize     = int64(5 * 1024 * 1024)
 	maxBodySize     = maxFileSize + maxOverheadSize
-
-	// TODO(Kagami): Better error granularity?
-	errInternal     = errors.New("internal error")
-	errParseForm    = errors.New("error parsing form")
-	errParseFile    = errors.New("error parsing form file")
-	errBadImage     = errors.New("invalid image")
-	errNoSingleFace = errors.New("not a single face")
-	errNoIdol       = errors.New("cannot find idol")
 )
 
 func setMainHeaders(w http.ResponseWriter) {
@@ -63,15 +59,15 @@ func serveError(w http.ResponseWriter, r *http.Request, err error, code int) {
 
 func handle500(w http.ResponseWriter, r *http.Request, err error) {
 	logError(err)
-	serveError(w, r, errInternal, 500)
+	serveError(w, r, kpopnet.ErrInternal, 500)
 }
 
 // ServeProfiles returns a JSON object with information about all profiles.
 func ServeProfiles(w http.ResponseWriter, r *http.Request, _ map[string]string) {
 	// TODO(Kagami): For some reason cached request is not fast enough.
 	// TODO(Kagami): Use some trigger to invalidate cache.
-	v, err := cached(profileCacheKey, func() (v interface{}, err error) {
-		ps, err := GetProfiles()
+	v, err := cache.Cached(cache.ProfileCacheKey, func() (v interface{}, err error) {
+		ps, err := db.GetProfiles()
 		if err != nil {
 			return
 		}
@@ -89,23 +85,23 @@ func ServeProfiles(w http.ResponseWriter, r *http.Request, _ map[string]string) 
 func ServeRecognize(w http.ResponseWriter, r *http.Request, _ map[string]string) {
 	r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
 	if err := r.ParseMultipartForm(0); err != nil {
-		serveError(w, r, errParseForm, 400)
+		serveError(w, r, kpopnet.ErrParseForm, 400)
 		return
 	}
 	fhs := r.MultipartForm.File["files[]"]
 	if len(fhs) != 1 {
-		serveError(w, r, errParseFile, 400)
+		serveError(w, r, kpopnet.ErrParseFile, 400)
 		return
 	}
-	idolID, err := RequestRecognizeMultipart(fhs[0])
+	idolID, err := facerec.RequestRecognizeMultipart(fhs[0])
 	switch err {
-	case errParseFile:
+	case kpopnet.ErrParseFile:
 		serveError(w, r, err, 400)
 		return
-	case errBadImage:
+	case kpopnet.ErrBadImage:
 		serveError(w, r, err, 400)
 		return
-	case errNoIdol:
+	case kpopnet.ErrNoIdol:
 		serveError(w, r, err, 404)
 		return
 	case nil:
@@ -115,7 +111,7 @@ func ServeRecognize(w http.ResponseWriter, r *http.Request, _ map[string]string)
 		return
 	}
 	if idolID == nil {
-		serveError(w, r, errNoSingleFace, 400)
+		serveError(w, r, kpopnet.ErrNoSingleFace, 400)
 		return
 	}
 	result := map[string]string{"id": *idolID}
@@ -124,9 +120,9 @@ func ServeRecognize(w http.ResponseWriter, r *http.Request, _ map[string]string)
 
 // ServeImageInfo returns information about already recognized image, if any.
 func ServeImageInfo(w http.ResponseWriter, r *http.Request, p map[string]string) {
-	info, err := getImageInfo(p["id"])
+	info, err := db.GetImageInfo(p["id"])
 	switch err {
-	case errNoIdol:
+	case kpopnet.ErrNoIdol:
 		serveError(w, r, err, 404)
 		return
 	case nil:

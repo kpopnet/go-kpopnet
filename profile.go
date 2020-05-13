@@ -3,6 +3,8 @@ package kpopnet
 import (
 	"fmt"
 	"image"
+
+	"github.com/Kagami/go-face"
 )
 
 const (
@@ -36,4 +38,11 @@ func (i ImageInfo) MarshalJSON() ([]byte, error) {
 		`{"rect":[%d,%d,%d,%d],"id":"%s","confirmed":"%v"}`,
 		r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, i.IdolID, i.Confirmed)
 	return []byte(s), nil
+}
+
+// TrainData contains information about all recognized idols.
+type TrainData struct {
+	Samples []face.Descriptor
+	Cats    []int32
+	Labels  map[int]string
 }

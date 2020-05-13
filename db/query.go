@@ -1,14 +1,18 @@
-package kpopnet
+package db
 
 import (
 	"database/sql"
 	"encoding/json"
+
+	"github.com/Kagami/go-face"
+	"github.com/kpopnet/go-kpopnet"
+	k "github.com/kpopnet/go-kpopnet"
 )
 
 // Get all bands.
-func getBands(tx *sql.Tx) (bands []Band, bandByID map[string]Band, err error) {
-	bands = make([]Band, 0)
-	bandByID = make(map[string]Band)
+func getBands(tx *sql.Tx) (bands []k.Band, bandByID map[string]k.Band, err error) {
+	bands = make([]k.Band, 0)
+	bandByID = make(map[string]k.Band)
 	rs, err := tx.Stmt(prepared["get_bands"]).Query()
 	if err != nil {
 		return
@@ -17,7 +21,7 @@ func getBands(tx *sql.Tx) (bands []Band, bandByID map[string]Band, err error) {
 	for rs.Next() {
 		var id string
 		var data []byte
-		var band Band
+		var band k.Band
 		if err = rs.Scan(&id, &data); err != nil {
 			return
 		}
@@ -35,9 +39,9 @@ func getBands(tx *sql.Tx) (bands []Band, bandByID map[string]Band, err error) {
 }
 
 // Get all idols.
-func getIdols(tx *sql.Tx) (idols []Idol, idolByID map[string]Idol, err error) {
-	idols = make([]Idol, 0)
-	idolByID = make(map[string]Idol)
+func getIdols(tx *sql.Tx) (idols []k.Idol, idolByID map[string]k.Idol, err error) {
+	idols = make([]k.Idol, 0)
+	idolByID = make(map[string]k.Idol)
 	rs, err := tx.Stmt(prepared["get_idols"]).Query()
 	if err != nil {
 		return
@@ -47,7 +51,7 @@ func getIdols(tx *sql.Tx) (idols []Idol, idolByID map[string]Idol, err error) {
 		var id string
 		var bandID string
 		var data []byte
-		var idol Idol
+		var idol k.Idol
 		if err = rs.Scan(&id, &bandID, &data); err != nil {
 			return
 		}
@@ -66,7 +70,7 @@ func getIdols(tx *sql.Tx) (idols []Idol, idolByID map[string]Idol, err error) {
 }
 
 // Get and set idol preview property.
-func getIdolPreviews(tx *sql.Tx, idolByID map[string]Idol) (err error) {
+func getIdolPreviews(tx *sql.Tx, idolByID map[string]k.Idol) (err error) {
 	rs, err := tx.Stmt(prepared["get_idol_previews"]).Query()
 	if err != nil {
 		return
@@ -89,19 +93,12 @@ func getIdolPreviews(tx *sql.Tx, idolByID map[string]Idol) (err error) {
 }
 
 // GetProfiles queries all profiles.
-func GetProfiles() (ps *Profiles, err error) {
+func GetProfiles() (ps *k.Profiles, err error) {
 	tx, err := beginTx()
 	if err != nil {
 		return
 	}
 	defer endTx(tx, &err)
-	if err = setReadOnly(tx); err != nil {
-		return
-	}
-	if err = setRepeatableRead(tx); err != nil {
-		return
-	}
-
 	bands, _, err := getBands(tx)
 	if err != nil {
 		return
@@ -115,16 +112,32 @@ func GetProfiles() (ps *Profiles, err error) {
 		return
 	}
 
-	ps = &Profiles{
+	ps = &k.Profiles{
 		Bands: bands,
 		Idols: idols,
 	}
 	return
 }
 
+// GetMaps returns idols/bands maps accessable by ID.
+func GetMaps() (idolByID map[string]k.Idol, bandByID map[string]k.Band, err error) {
+	tx, err := beginTx()
+	if err != nil {
+		return
+	}
+	defer endTx(tx, &err)
+	if _, idolByID, err = getIdols(tx); err != nil {
+		return
+	}
+	if _, bandByID, err = getBands(tx); err != nil {
+		return
+	}
+	return
+}
+
 // Prepare band structure to be stored in DB.
 // ID fields are removed to avoid duplication.
-func getBandData(band Band) (data []byte, err error) {
+func getBandData(band k.Band) (data []byte, err error) {
 	delete(band, "id")
 	delete(band, "urls") // Don't need this
 	data, err = json.Marshal(band)
@@ -133,7 +146,7 @@ func getBandData(band Band) (data []byte, err error) {
 
 // Prepare idol structure to be stored in DB.
 // ID fields are removed to avoid duplication.
-func getIdolData(idol Idol) (data []byte, err error) {
+func getIdolData(idol k.Idol) (data []byte, err error) {
 	delete(idol, "id")
 	delete(idol, "band_id")
 	data, err = json.Marshal(idol)
@@ -141,7 +154,7 @@ func getIdolData(idol Idol) (data []byte, err error) {
 }
 
 // UpdateProfiles inserts or updates database profiles.
-func UpdateProfiles(ps *Profiles) (err error) {
+func UpdateProfiles(ps *k.Profiles) (err error) {
 	tx, err := beginTx()
 	if err != nil {
 		return
@@ -178,18 +191,60 @@ func UpdateProfiles(ps *Profiles) (err error) {
 	return
 }
 
-func getImageInfo(imageID string) (info *ImageInfo, err error) {
+// GetImageInfo returns recognition info for the specified image.
+func GetImageInfo(imageID string) (info *k.ImageInfo, err error) {
 	var rectStr string
 	var idolID string
 	var confirmed bool
 	err = prepared["get_face"].QueryRow(imageID).Scan(&rectStr, &idolID, &confirmed)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = errNoIdol
+			err = kpopnet.ErrNoIdol
 		}
 		return
 	}
 	rect := str2rect(rectStr)
-	info = &ImageInfo{rect, idolID, confirmed}
+	info = &k.ImageInfo{Rectangle: rect, IdolID: idolID, Confirmed: confirmed}
+	return
+}
+
+// GetTrainData returns confirmed face descriptors.
+func GetTrainData() (data *k.TrainData, err error) {
+	var samples []face.Descriptor
+	var cats []int32
+	labels := make(map[int]string)
+
+	rs, err := prepared["get_train_data"].Query()
+	if err != nil {
+		return
+	}
+	defer rs.Close()
+	var catID int32
+	var prevIdolID string
+	catID = -1
+	for rs.Next() {
+		var idolID string
+		var descrBytes []byte
+		if err = rs.Scan(&idolID, &descrBytes); err != nil {
+			return
+		}
+		descriptor := bytes2descr(descrBytes)
+		samples = append(samples, descriptor)
+		if idolID != prevIdolID {
+			catID++
+			labels[int(catID)] = idolID
+		}
+		cats = append(cats, catID)
+		prevIdolID = idolID
+	}
+	if err = rs.Err(); err != nil {
+		return
+	}
+
+	data = &k.TrainData{
+		Samples: samples,
+		Cats:    cats,
+		Labels:  labels,
+	}
 	return
 }

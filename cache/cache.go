@@ -1,4 +1,4 @@
-package kpopnet
+package cache
 
 import (
 	"sync"
@@ -7,8 +7,10 @@ import (
 type cacheKey int
 
 const (
-	profileCacheKey cacheKey = iota
-	trainDataCacheKey
+	// ProfileCacheKey is a key for caching profiles info.
+	ProfileCacheKey cacheKey = iota
+	// TrainDataCacheKey is a key for caching train data.
+	TrainDataCacheKey
 )
 
 var (
@@ -16,7 +18,8 @@ var (
 	cache = make(map[cacheKey]interface{}, 2)
 )
 
-func cached(key cacheKey, makev func() (interface{}, error)) (v interface{}, err error) {
+// Cached either returns data from cache or makes it via provided callback.
+func Cached(key cacheKey, makev func() (interface{}, error)) (v interface{}, err error) {
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -37,5 +40,5 @@ func cached(key cacheKey, makev func() (interface{}, error)) (v interface{}, err
 func ClearProfilesCache() {
 	mu.Lock()
 	defer mu.Unlock()
-	delete(cache, profileCacheKey)
+	delete(cache, ProfileCacheKey)
 }

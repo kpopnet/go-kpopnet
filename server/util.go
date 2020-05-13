@@ -1,4 +1,4 @@
-package kpopnet
+package server
 
 import (
 	"crypto/md5"

@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/kpopnet/go-kpopnet"
+	"github.com/kpopnet/go-kpopnet/db"
+	"github.com/kpopnet/go-kpopnet/facerec"
+	"github.com/kpopnet/go-kpopnet/server"
 
 	"github.com/docopt/docopt-go"
 )
@@ -39,17 +41,17 @@ type config struct {
 }
 
 func serve(conf config) {
-	if err := kpopnet.StartDB(nil, conf.Conn); err != nil {
+	if err := db.StartDB(nil, conf.Conn); err != nil {
 		log.Fatal(err)
 	}
-	if err := kpopnet.StartFaceRec(conf.DataDir); err != nil {
+	if err := facerec.StartFaceRec(conf.DataDir); err != nil {
 		log.Fatal(err)
 	}
-	opts := kpopnet.ServerOptions{
+	opts := server.ServerOptions{
 		Address: fmt.Sprintf("%v:%v", conf.Host, conf.Port),
 	}
 	log.Printf("Listening on %v", opts.Address)
-	log.Fatal(kpopnet.StartServer(opts))
+	log.Fatal(server.StartServer(opts))
 }
 
 func main() {

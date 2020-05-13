@@ -1,6 +1,6 @@
-//go:generate go-bindata -o bin_data.go --pkg kpopnet --nometadata --prefix sql sql/...
+//go:generate go run github.com/kevinburke/go-bindata/go-bindata -o bin_data.go --pkg db --nometadata --prefix sql sql/...
 
-package kpopnet
+package db
 
 import (
 	"database/sql"
