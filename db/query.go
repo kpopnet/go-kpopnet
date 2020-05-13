@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 
 	"github.com/Kagami/go-face"
-	"github.com/kpopnet/go-kpopnet"
 	k "github.com/kpopnet/go-kpopnet"
 )
 
@@ -188,23 +187,6 @@ func UpdateProfiles(ps *k.Profiles) (err error) {
 		}
 	}
 
-	return
-}
-
-// GetImageInfo returns recognition info for the specified image.
-func GetImageInfo(imageID string) (info *k.ImageInfo, err error) {
-	var rectStr string
-	var idolID string
-	var confirmed bool
-	err = prepared["get_face"].QueryRow(imageID).Scan(&rectStr, &idolID, &confirmed)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			err = kpopnet.ErrNoIdol
-		}
-		return
-	}
-	rect := str2rect(rectStr)
-	info = &k.ImageInfo{Rectangle: rect, IdolID: idolID, Confirmed: confirmed}
 	return
 }
 

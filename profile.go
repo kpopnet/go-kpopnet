@@ -1,9 +1,6 @@
 package kpopnet
 
 import (
-	"fmt"
-	"image"
-
 	"github.com/Kagami/go-face"
 )
 
@@ -21,23 +18,6 @@ type Idol map[string]interface{}
 type Profiles struct {
 	Bands []Band `json:"bands"`
 	Idols []Idol `json:"idols"`
-}
-
-// ImageInfo contains information about recognized image.
-type ImageInfo struct {
-	Rectangle image.Rectangle
-	// TODO(Kagami): Add few most probable matches to simplify confirmation.
-	IdolID    string
-	Confirmed bool
-}
-
-// MarshalJSON returns JSON representation of ImageInfo.
-func (i ImageInfo) MarshalJSON() ([]byte, error) {
-	r := i.Rectangle
-	s := fmt.Sprintf(
-		`{"rect":[%d,%d,%d,%d],"id":"%s","confirmed":"%v"}`,
-		r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, i.IdolID, i.Confirmed)
-	return []byte(s), nil
 }
 
 // TrainData contains information about all recognized idols.

@@ -117,19 +117,3 @@ func ServeRecognize(w http.ResponseWriter, r *http.Request, _ map[string]string)
 	result := map[string]string{"id": *idolID}
 	serveJSON(w, r, result)
 }
-
-// ServeImageInfo returns information about already recognized image, if any.
-func ServeImageInfo(w http.ResponseWriter, r *http.Request, p map[string]string) {
-	info, err := db.GetImageInfo(p["id"])
-	switch err {
-	case kpopnet.ErrNoIdol:
-		serveError(w, r, err, 404)
-		return
-	case nil:
-		// Do nothing.
-	default:
-		handle500(w, r, err)
-		return
-	}
-	serveJSON(w, r, info)
-}

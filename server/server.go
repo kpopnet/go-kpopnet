@@ -22,7 +22,6 @@ func createRouter() http.Handler {
 
 	r.GET("/api/idols/profiles", ServeProfiles)
 	r.POST("/api/idols/recognize", ServeRecognize)
-	r.GET("/api/idols/by-image/:id", ServeImageInfo)
 
 	return http.Handler(r)
 }
