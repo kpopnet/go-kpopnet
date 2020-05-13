@@ -18,3 +18,6 @@ testdata:
 
 test: kpopnetd testdata
 	go test -v ./facerec
+
+docker:
+	docker build -t kpopnet .

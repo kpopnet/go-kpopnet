@@ -55,7 +55,7 @@ var (
 )
 
 func getTestFilePath(fname string) string {
-	return filepath.Join(testDir, fname)
+	return filepath.Join(testDir, "images", fname)
 }
 
 func recognizeFile(fpath string) (idolID *string, err error) {
@@ -74,7 +74,7 @@ func TestIdols(t *testing.T) {
 	if err := db.Start(nil, testConn); err != nil {
 		t.Fatal(err)
 	}
-	if err := Start(testDir); err != nil {
+	if err := Start(filepath.Join(testDir, "models")); err != nil {
 		t.Fatal(err)
 	}
 	idolByID, bandByID, err := db.GetMaps()
