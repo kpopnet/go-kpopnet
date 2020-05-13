@@ -33,16 +33,16 @@ func getNamesKey(bname, iname string) namesKey {
 	return [2]string{bname, iname}
 }
 
-func getIdolNamesKey(idol Idol, bandById map[string]Band) (key namesKey, ok bool) {
+func getIdolNamesKey(idol Idol, bandByID map[string]Band) (key namesKey, ok bool) {
 	iname, ok := idol["name"].(string)
 	if !ok {
 		return
 	}
-	bandId, ok := idol["band_id"].(string)
+	bandID, ok := idol["band_id"].(string)
 	if !ok {
 		return
 	}
-	band, ok := bandById[bandId]
+	band, ok := bandByID[bandID]
 	if !ok {
 		return
 	}
@@ -62,7 +62,7 @@ func getIdolNamesMap() (idolByNames idolNamesMap, err error) {
 	if err = setReadOnly(tx); err != nil {
 		return
 	}
-	_, bandById, err := getBands(tx)
+	_, bandByID, err := getBands(tx)
 	if err != nil {
 		return
 	}
@@ -72,7 +72,7 @@ func getIdolNamesMap() (idolByNames idolNamesMap, err error) {
 	}
 	idolByNames = make(idolNamesMap)
 	for _, idol := range idols {
-		if key, ok := getIdolNamesKey(idol, bandById); ok {
+		if key, ok := getIdolNamesKey(idol, bandByID); ok {
 			idolByNames[key] = idol
 		}
 	}
@@ -106,10 +106,10 @@ func recognizeIdolImages(idir string) (faces []face.Face, ids []string, err erro
 	// Python spider.
 	for _, file := range idolImages {
 		var f *face.Face
-		var imageId string
+		var imageID string
 		fname := file.Name()
 		ipath := filepath.Join(idir, fname)
-		f, imageId, err = recognizeIdolImage(ipath)
+		f, imageID, err = recognizeIdolImage(ipath)
 		if err != nil {
 			return
 		}
@@ -118,24 +118,24 @@ func recognizeIdolImages(idir string) (faces []face.Face, ids []string, err erro
 			continue
 		}
 		faces = append(faces, *f)
-		ids = append(ids, imageId)
+		ids = append(ids, imageID)
 	}
 	return
 }
 
 func importIdolImages(st *sql.Stmt, idir string, idol Idol) (err error) {
-	faces, imageIds, err := recognizeIdolImages(idir)
+	faces, imageIDs, err := recognizeIdolImages(idir)
 	if err != nil {
 		return
 	}
-	idolId := idol["id"].(string)
+	idolID := idol["id"].(string)
 	for i, f := range faces {
 		rectStr := rect2str(f.Rectangle)
 		descrBytes := descr2bytes(f.Descriptor)
-		imageId := imageIds[i]
+		imageID := imageIDs[i]
 		confirmed := true
 		source := "googleimages"
-		_, err = st.Exec(rectStr, descrBytes, imageId, idolId, confirmed, source)
+		_, err = st.Exec(rectStr, descrBytes, imageID, idolID, confirmed, source)
 		if err != nil {
 			return
 		}
@@ -175,7 +175,7 @@ func importBandImages(bdir, bname string, idolByNames idolNamesMap) (err error) 
 
 // Read and update idol faces in database.
 func ImportImages(connStr string, dataDir string, onlyBands []string) (err error) {
-	if err = StartDb(nil, connStr); err != nil {
+	if err = StartDB(nil, connStr); err != nil {
 		return
 	}
 

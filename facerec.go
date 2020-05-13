@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	_ "image/jpeg"
+	_ "image/jpeg" // JPEG decoder
 	"io/ioutil"
 	"mime/multipart"
 	"unsafe"
@@ -32,7 +32,7 @@ type recRequest struct {
 }
 
 type recResult struct {
-	idolId *string
+	idolID *string
 	err    error
 }
 
@@ -62,26 +62,26 @@ func startFaceRec(modelsDir string) (err error) {
 func recWorker() {
 	for {
 		req := <-recJobs
-		idolId, err := recognizeMultipart(req.fh)
-		req.ch <- recResult{idolId, err}
+		idolID, err := recognizeMultipart(req.fh)
+		req.ch <- recResult{idolID, err}
 	}
 }
 
 // Recognize user-provided image with the specific concurrency level.
 // Note that we don't read file beforehand to minimize memory
 // consumption.
-func RequestRecognizeMultipart(fh *multipart.FileHeader) (idolId *string, err error) {
+func RequestRecognizeMultipart(fh *multipart.FileHeader) (idolID *string, err error) {
 	ch := make(chan recResult)
 	go func() {
 		recJobs <- recRequest{fh, ch}
 	}()
 	res := <-ch
-	return res.idolId, res.err
+	return res.idolID, res.err
 }
 
 // Simple wrapper to work with uploaded files.
 // Recognize immediately.
-func recognizeMultipart(fh *multipart.FileHeader) (idolId *string, err error) {
+func recognizeMultipart(fh *multipart.FileHeader) (idolID *string, err error) {
 	fd, err := fh.Open()
 	if err != nil {
 		err = errParseFile
@@ -93,13 +93,13 @@ func recognizeMultipart(fh *multipart.FileHeader) (idolId *string, err error) {
 		err = errParseFile
 		return
 	}
-	idolId, err = recognize(imgData)
+	idolID, err = recognize(imgData)
 	return
 }
 
 // Recognize immediately.
 // TODO(Kagami): Search for already recognized idol using imageId.
-func recognize(imgData []byte) (idolId *string, err error) {
+func recognize(imgData []byte) (idolID *string, err error) {
 	// TODO(Kagami): Invalidate?
 	v, err := cached(trainDataCacheKey, func() (interface{}, error) {
 		data, err := getTrainData()
@@ -135,12 +135,12 @@ func recognize(imgData []byte) (idolId *string, err error) {
 		return
 	}
 
-	catIdx := faceRec.Classify(f.Descriptor)
-	if catIdx < 0 {
+	catID := faceRec.Classify(f.Descriptor)
+	if catID < 0 {
 		err = errNoIdol
 		return
 	}
-	id := data.labels[catIdx]
+	id := data.labels[catID]
 	return &id, nil
 }
 
@@ -155,23 +155,23 @@ func getTrainData() (data *trainData, err error) {
 		return
 	}
 	defer rs.Close()
-	var catIdx int32
-	var prevIdolId string
-	catIdx = -1
+	var catID int32
+	var prevIdolID string
+	catID = -1
 	for rs.Next() {
-		var idolId string
+		var idolID string
 		var descrBytes []byte
-		if err = rs.Scan(&idolId, &descrBytes); err != nil {
+		if err = rs.Scan(&idolID, &descrBytes); err != nil {
 			return
 		}
 		descriptor := bytes2descr(descrBytes)
 		samples = append(samples, descriptor)
-		if idolId != prevIdolId {
-			catIdx++
-			labels[int(catIdx)] = idolId
+		if idolID != prevIdolID {
+			catID++
+			labels[int(catID)] = idolID
 		}
-		cats = append(cats, catIdx)
-		prevIdolId = idolId
+		cats = append(cats, catID)
+		prevIdolID = idolID
 	}
 	if err = rs.Err(); err != nil {
 		return

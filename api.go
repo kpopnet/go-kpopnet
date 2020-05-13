@@ -95,7 +95,7 @@ func ServeRecognize(w http.ResponseWriter, r *http.Request) {
 		serveError(w, r, errParseFile, 400)
 		return
 	}
-	idolId, err := RequestRecognizeMultipart(fhs[0])
+	idolID, err := RequestRecognizeMultipart(fhs[0])
 	switch err {
 	case errParseFile:
 		serveError(w, r, err, 400)
@@ -112,17 +112,17 @@ func ServeRecognize(w http.ResponseWriter, r *http.Request) {
 		handle500(w, r, err)
 		return
 	}
-	if idolId == nil {
+	if idolID == nil {
 		serveError(w, r, errNoSingleFace, 400)
 		return
 	}
-	result := map[string]string{"id": *idolId}
+	result := map[string]string{"id": *idolID}
 	serveJSON(w, r, result)
 }
 
 func ServeImageInfo(w http.ResponseWriter, r *http.Request) {
-	imageId := getParam(r, "id")
-	info, err := getImageInfo(imageId)
+	imageID := getParam(r, "id")
+	info, err := getImageInfo(imageID)
 	switch err {
 	case errNoIdol:
 		serveError(w, r, err, 404)

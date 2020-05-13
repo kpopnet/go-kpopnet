@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // import db driver
 )
 
 var (
@@ -40,7 +40,7 @@ func prepare() (err error) {
 	return
 }
 
-func StartDb(openedDb *sql.DB, connStr string) (err error) {
+func StartDB(openedDb *sql.DB, connStr string) (err error) {
 	if openedDb == nil {
 		if db, err = sql.Open("postgres", connStr); err != nil {
 			return

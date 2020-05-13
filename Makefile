@@ -8,7 +8,7 @@ serve: kpopnetd
 	./kpopnetd serve
 
 gofmt:
-	go fmt kpopnet/...
+	go fmt ./...
 
 testdata:
 	git clone https://github.com/Kagami/go-face-testdata testdata

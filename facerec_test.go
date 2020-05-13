@@ -51,16 +51,16 @@ var (
 	}
 )
 
-func getMaps() (idolById map[string]Idol, bandById map[string]Band, err error) {
+func getMaps() (idolByID map[string]Idol, bandByID map[string]Band, err error) {
 	tx, err := beginTx()
 	if err != nil {
 		return
 	}
 	defer endTx(tx, &err)
-	if _, idolById, err = getIdols(tx); err != nil {
+	if _, idolByID, err = getIdols(tx); err != nil {
 		return
 	}
-	if _, bandById, err = getBands(tx); err != nil {
+	if _, bandByID, err = getBands(tx); err != nil {
 		return
 	}
 	return
@@ -70,7 +70,7 @@ func getTestFilePath(fname string) string {
 	return filepath.Join("testdata", fname)
 }
 
-func recognizeFile(fpath string) (idolId *string, err error) {
+func recognizeFile(fpath string) (idolID *string, err error) {
 	fd, err := os.Open(fpath)
 	if err != nil {
 		return
@@ -83,13 +83,13 @@ func recognizeFile(fpath string) (idolId *string, err error) {
 }
 
 func TestIdols(t *testing.T) {
-	if err := StartDb(nil, testConn); err != nil {
+	if err := StartDB(nil, testConn); err != nil {
 		t.Fatal(err)
 	}
 	if err := startFaceRec("testdata"); err != nil {
 		t.Fatal(err)
 	}
-	idolById, bandById, err := getMaps()
+	idolByID, bandByID, err := getMaps()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -99,17 +99,17 @@ func TestIdols(t *testing.T) {
 			expectedIname := names[0]
 			expectedBname := names[1]
 
-			actualIdolId, err := recognizeFile(getTestFilePath(fname))
+			actualIdolID, err := recognizeFile(getTestFilePath(fname))
 			if err != nil {
 				t.Fatal(err)
 			}
-			if actualIdolId == nil {
+			if actualIdolID == nil {
 				t.Errorf("%s: expected “%s” but not recognized", fname, expected)
 				return
 			}
 
-			idol := idolById[*actualIdolId]
-			band := bandById[idol["band_id"].(string)]
+			idol := idolByID[*actualIdolID]
+			band := bandByID[idol["band_id"].(string)]
 			actualIname := idol["name"]
 			actualBname := band["name"]
 			if expectedIname != actualIname || expectedBname != actualBname {

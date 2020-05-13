@@ -8,8 +8,8 @@ import (
 	"strconv"
 )
 
-func execQ(queryId string) (err error) {
-	_, err = db.Exec(getQuery(queryId))
+func execQ(queryID string) (err error) {
+	_, err = db.Exec(getQuery(queryID))
 	return
 }
 

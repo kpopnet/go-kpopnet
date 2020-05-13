@@ -6,9 +6,9 @@ import (
 )
 
 // Get all bands.
-func getBands(tx *sql.Tx) (bands []Band, bandById map[string]Band, err error) {
+func getBands(tx *sql.Tx) (bands []Band, bandByID map[string]Band, err error) {
 	bands = make([]Band, 0)
-	bandById = make(map[string]Band)
+	bandByID = make(map[string]Band)
 	rs, err := tx.Stmt(prepared["get_bands"]).Query()
 	if err != nil {
 		return
@@ -26,7 +26,7 @@ func getBands(tx *sql.Tx) (bands []Band, bandById map[string]Band, err error) {
 		}
 		band["id"] = id
 		bands = append(bands, band)
-		bandById[id] = band
+		bandByID[id] = band
 	}
 	if err = rs.Err(); err != nil {
 		return
@@ -35,9 +35,9 @@ func getBands(tx *sql.Tx) (bands []Band, bandById map[string]Band, err error) {
 }
 
 // Get all idols.
-func getIdols(tx *sql.Tx) (idols []Idol, idolById map[string]Idol, err error) {
+func getIdols(tx *sql.Tx) (idols []Idol, idolByID map[string]Idol, err error) {
 	idols = make([]Idol, 0)
-	idolById = make(map[string]Idol)
+	idolByID = make(map[string]Idol)
 	rs, err := tx.Stmt(prepared["get_idols"]).Query()
 	if err != nil {
 		return
@@ -45,19 +45,19 @@ func getIdols(tx *sql.Tx) (idols []Idol, idolById map[string]Idol, err error) {
 	defer rs.Close()
 	for rs.Next() {
 		var id string
-		var bandId string
+		var bandID string
 		var data []byte
 		var idol Idol
-		if err = rs.Scan(&id, &bandId, &data); err != nil {
+		if err = rs.Scan(&id, &bandID, &data); err != nil {
 			return
 		}
 		if err = json.Unmarshal(data, &idol); err != nil {
 			return
 		}
 		idol["id"] = id
-		idol["band_id"] = bandId
+		idol["band_id"] = bandID
 		idols = append(idols, idol)
-		idolById[id] = idol
+		idolByID[id] = idol
 	}
 	if err = rs.Err(); err != nil {
 		return
@@ -66,20 +66,20 @@ func getIdols(tx *sql.Tx) (idols []Idol, idolById map[string]Idol, err error) {
 }
 
 // Get and set idol preview property.
-func getIdolPreviews(tx *sql.Tx, idolById map[string]Idol) (err error) {
+func getIdolPreviews(tx *sql.Tx, idolByID map[string]Idol) (err error) {
 	rs, err := tx.Stmt(prepared["get_idol_previews"]).Query()
 	if err != nil {
 		return
 	}
 	defer rs.Close()
 	for rs.Next() {
-		var idolId string
-		var imageId string
-		if err = rs.Scan(&idolId, &imageId); err != nil {
+		var idolID string
+		var imageID string
+		if err = rs.Scan(&idolID, &imageID); err != nil {
 			return
 		}
-		if idol, ok := idolById[idolId]; ok {
-			idol["image_id"] = imageId
+		if idol, ok := idolByID[idolID]; ok {
+			idol["image_id"] = imageID
 		}
 	}
 	if err = rs.Err(); err != nil {
@@ -106,11 +106,11 @@ func GetProfiles() (ps *Profiles, err error) {
 	if err != nil {
 		return
 	}
-	idols, idolById, err := getIdols(tx)
+	idols, idolByID, err := getIdols(tx)
 	if err != nil {
 		return
 	}
-	err = getIdolPreviews(tx, idolById)
+	err = getIdolPreviews(tx, idolByID)
 	if err != nil {
 		return
 	}
@@ -164,13 +164,13 @@ func UpdateProfiles(ps *Profiles) (err error) {
 	st = tx.Stmt(prepared["upsert_idol"])
 	for _, idol := range ps.Idols {
 		id := idol["id"]
-		bandId := idol["band_id"]
+		bandID := idol["band_id"]
 		var data []byte
 		data, err = getIdolData(idol)
 		if err != nil {
 			return
 		}
-		if _, err = st.Exec(id, bandId, data); err != nil {
+		if _, err = st.Exec(id, bandID, data); err != nil {
 			return
 		}
 	}
@@ -178,11 +178,11 @@ func UpdateProfiles(ps *Profiles) (err error) {
 	return
 }
 
-func getImageInfo(imageId string) (info *ImageInfo, err error) {
+func getImageInfo(imageID string) (info *ImageInfo, err error) {
 	var rectStr string
-	var idolId string
+	var idolID string
 	var confirmed bool
-	err = prepared["get_face"].QueryRow(imageId).Scan(&rectStr, &idolId, &confirmed)
+	err = prepared["get_face"].QueryRow(imageID).Scan(&rectStr, &idolID, &confirmed)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = errNoIdol
@@ -190,6 +190,6 @@ func getImageInfo(imageId string) (info *ImageInfo, err error) {
 		return
 	}
 	rect := str2rect(rectStr)
-	info = &ImageInfo{rect, idolId, confirmed}
+	info = &ImageInfo{rect, idolID, confirmed}
 	return
 }

@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	INDEX_NAME = "index"
+	indexName = "index"
 )
 
 // Band info.
@@ -28,7 +28,7 @@ type Profiles struct {
 // TODO(Kagami): Add close matches field to simplify confirmation.
 type ImageInfo struct {
 	Rectangle image.Rectangle
-	IdolId    string
+	IdolID    string
 	Confirmed bool
 }
 
@@ -36,12 +36,12 @@ func (i ImageInfo) MarshalJSON() ([]byte, error) {
 	r := i.Rectangle
 	s := fmt.Sprintf(
 		`{"rect":[%d,%d,%d,%d],"id":"%s","confirmed":"%v"}`,
-		r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, i.IdolId, i.Confirmed)
+		r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, i.IdolID, i.Confirmed)
 	return []byte(s), nil
 }
 
 func checkName(name string) {
-	if name == INDEX_NAME {
+	if name == indexName {
 		panic("Bad name")
 	}
 }
@@ -56,7 +56,7 @@ func getBandDir(d string, bname string) string {
 }
 
 func getBandPath(d string, bname string) string {
-	return filepath.Join(getBandDir(d, bname), INDEX_NAME+".json")
+	return filepath.Join(getBandDir(d, bname), indexName+".json")
 }
 
 func getIdolPath(d string, bname string, iname string) string {
@@ -73,7 +73,7 @@ func readBandIdols(d string, bname string) (idols []Idol, err error) {
 		var data []byte
 		var idol Idol
 		iname := strings.TrimSuffix(ifile.Name(), ".json")
-		if iname == INDEX_NAME {
+		if iname == indexName {
 			continue
 		}
 		data, err = ioutil.ReadFile(getIdolPath(d, bname, iname))
@@ -130,7 +130,7 @@ func ReadProfiles(d string) (ps *Profiles, err error) {
 
 // Read and update profiles in database.
 func ImportProfiles(connStr string, dataDir string) (err error) {
-	if err = StartDb(nil, connStr); err != nil {
+	if err = StartDB(nil, connStr); err != nil {
 		return
 	}
 	ps, err := ReadProfiles(dataDir)
