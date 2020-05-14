@@ -15,8 +15,9 @@ func Start(address string) (err error) {
 func createRouter() http.Handler {
 	r := httptreemux.New()
 
-	r.GET("/api/profiles", ServeProfiles)
-	r.POST("/api/recognize", ServeRecognize)
+	api := r.UsingContext().NewGroup("/api")
+	api.GET("/profiles", ServeProfiles)
+	api.POST("/recognize", ServeRecognize)
 
 	return http.Handler(r)
 }
