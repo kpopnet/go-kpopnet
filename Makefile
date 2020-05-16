@@ -19,5 +19,7 @@ testdata:
 test: testdata
 	go test -v ./facerec
 
-docker: kpopnetd testdata
+deploy: kpopnetd testdata
 	docker build -t kpopnet .
+	docker save kpopnet | pv | ssh -C ${KPOPNET_DEPLOY_HOST} 'docker load'
+	ssh ${KPOPNET_DEPLOY_HOST} 'systemctl restart docker-compose@kpopnet.service'
